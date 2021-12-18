@@ -14,11 +14,13 @@ import {
 } from '@chakra-ui/react'
 import React, { useEffect, useRef, useState } from 'react'
 import { FaGoogle } from 'react-icons/fa'
+import { useLocation } from 'react-router-dom'
 import { Link, useHistory } from 'react-router-dom'
 import { Card } from '../components/Card'
 import DividerWithText from '../components/DividerWithText'
 import { Layout } from '../components/Layout'
 import { useAuth } from '../contexts/AuthContext'
+import useMounted from '../hooks/useMounted'
 
 export default function Loginpage() {
   const history = useHistory()
@@ -26,7 +28,9 @@ export default function Loginpage() {
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const toast = useToast()
-  const { login } = useAuth()
+  const { login, signInWithGoogle } = useAuth()
+  const mounted = useMounted()
+  const location = useLocation()
 
   return (
     <Layout>
@@ -52,8 +56,8 @@ export default function Loginpage() {
             login(email, password)
               .then(res => {
                 console.log(res)
-                //redirecting to the profile page
-                history.push('/profile')
+                //we will use optional chaning if the location is defined we will use the location state if it's not then the default link
+                history.push(location.state?.from ?? '/profile')
               })
               .catch(error => {
                 console.log(error.message)
@@ -64,7 +68,7 @@ export default function Loginpage() {
                   isClosable: true,
                 })
               })
-              .finally(() => setIsSubmitting(false))
+              .finally(() => mounted.current && setIsSubmitting(false))
           }}
         >
           <Stack spacing='6'>
@@ -104,7 +108,7 @@ export default function Loginpage() {
           isFullWidth
           colorScheme='red'
           leftIcon={<FaGoogle />}
-          onClick={() => alert('sign in with google')}
+          onClick={() => signInWithGoogle().then(res => console.log(res)).catch(error => console.log(error.message))}
         >
           Sign in with Google
         </Button>

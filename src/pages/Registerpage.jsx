@@ -24,7 +24,7 @@ export default function Registerpage() {
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const toast = useToast()
-  const { register } = useAuth()
+  const { register, signInWithGoogle } = useAuth()
 // console.log(register("dexter@gmail.com", "111111111"));
   return (
     <Layout>
@@ -93,9 +93,9 @@ export default function Registerpage() {
           isFullWidth
           colorScheme='red'
           leftIcon={<FaGoogle />}
-          onClick={() => alert('sign in with google')}
+          onClick={() => signInWithGoogle().then(res => console.log(res)).catch(error => console.log(error.message))}
         >
-          Sign in with Google
+          Signup with Google
         </Button>
       </Card>
     </Layout>

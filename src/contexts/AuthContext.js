@@ -4,6 +4,11 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendPasswordResetEmail,
+  confirmPasswordReset
 } from "firebase/auth";
 
 //create context
@@ -12,6 +17,10 @@ const AuthContext = createContext({
   //register function will return promise
   register: () => Promise,
   login: () => Promise,
+  logout: () => Promise,
+  signInWithGoogle: () => Promise,
+  forgotPassword: () => Promise,
+  resetPassword: () => Promise,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -42,10 +51,42 @@ export default function AuthContextProvider({ children }) {
     return signInWithEmailAndPassword(auth, email, password);
   }
 
+   //logout function
+   function logout() {
+    //auth is coming from init firebase
+    return signOut(auth);
+  }
+
+  //google signin function
+  function signInWithGoogle() {
+    const provider = new GoogleAuthProvider()
+    //auth is coming from init firebase
+    return signInWithPopup(auth, provider)
+  }
+
+   //forgot password function
+   function forgotPassword(email) {
+    //auth is coming from init firebase
+    return sendPasswordResetEmail(auth, email, {
+      url: 'http://localhost:3000/login',
+    })
+  }
+
+   //reset password function
+   function resetPassword(oobCode, newPassword) {
+    //auth is coming from init firebase
+    return confirmPasswordReset(auth, oobCode, newPassword )
+  }
+
+
   const value = {
     currentUser,
     register,
     login,
+    logout,
+    signInWithGoogle,
+    forgotPassword,
+    resetPassword
   };
 
   return (
