@@ -18,9 +18,15 @@ import { Link, useHistory } from 'react-router-dom'
 import { Card } from '../components/Card'
 import DividerWithText from '../components/DividerWithText'
 import { Layout } from '../components/Layout'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Loginpage() {
   const history = useHistory()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const toast = useToast()
+  const { login } = useAuth()
 
   return (
     <Layout>
@@ -32,12 +38,40 @@ export default function Loginpage() {
           onSubmit={async e => {
             e.preventDefault()
             // your login logic here
+            if (!email || !password) {
+              toast({
+                description: 'Credentials not valid.',
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+              })
+              return
+            }
+            // your register logic here
+            setIsSubmitting(true)
+            login(email, password)
+              .then(res => {
+                console.log(res)
+                //redirecting to the profile page
+                history.push('/profile')
+              })
+              .catch(error => {
+                console.log(error.message)
+                toast({
+                  description: error.message,
+                  status: 'error',
+                  duration: 9000,
+                  isClosable: true,
+                })
+              })
+              .finally(() => setIsSubmitting(false))
           }}
         >
           <Stack spacing='6'>
             <FormControl id='email'>
               <FormLabel>Email address</FormLabel>
-              <Input name='email' type='email' autoComplete='email' required />
+              <Input name='email' type='email' autoComplete='email' required value={email}
+              onChange={e => setEmail(e.target.value)} />
             </FormControl>
             <FormControl id='password'>
               <FormLabel>Password</FormLabel>
@@ -46,6 +80,8 @@ export default function Loginpage() {
                 type='password'
                 autoComplete='password'
                 required
+                value={password}
+              onChange={e => setPassword(e.target.value)}
               />
             </FormControl>
             {/* <PasswordField /> */}
